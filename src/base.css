@@ -1,0 +1,21 @@
+@import '@fontsource/space-grotesk/400.css';
+@import '@fontsource/space-grotesk/500.css';
+@import '@fontsource/space-grotesk/600.css';
+@import '@fontsource/space-grotesk/700.css';
+@import '@fontsource/ibm-plex-mono/400.css';
+:root { font-family: 'Space Grotesk', sans-serif; color: #202427; background: #f6f7f8; font-synthesis: none; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; --accent: #087f8c; --accent-dark: #065a63; --accent-light: #e4f3f4; --line: #dce0e3; --muted: #657078; --surface: #fff; letter-spacing: 0; }
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; }
+button, input, select, textarea { font: inherit; }
+button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+button { cursor: pointer; color: inherit; }
+button:disabled { cursor: not-allowed; opacity: .4; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+a { color: inherit; }
+h1, h2, h3, p { margin: 0; }
+input, select { min-width: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 9px 10px; color: inherit; }
+input[type='checkbox'] { accent-color: var(--accent); width: 16px; height: 16px; }
+input[type='range'] { accent-color: var(--accent); padding: 0; width: 100%; }
+input[type='color'] { width: 48px; height: 36px; padding: 3px; }
+textarea { resize: vertical; }
+::selection { background: #b8e3e5; }

@@ -1,0 +1,6 @@
+:root { --accent: #3f7651; --accent-dark: #2b5539; --accent-light: #e8f2eb; }
+.pdf-toolbar { border: 0; padding: 0 0 18px; flex-wrap: wrap; }
+.document-count { font: 10px 'IBM Plex Mono', monospace; color: var(--muted); }
+.settings-textarea { min-height: 100px; width: 100%; border: 1px solid var(--line); border-radius: 4px; padding: 10px; font: 11px/1.6 'IBM Plex Mono', monospace; }
+.report-section { margin-top: 20px; }
+.control-panel input[type='file'] { width: 100%; font-size: 10px; }

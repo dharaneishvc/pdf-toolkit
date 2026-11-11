@@ -1,0 +1,38 @@
+import { describe, expect, it } from 'vitest'
+import { PDFDocument } from 'pdf-lib'
+import { pageRange, processPDF, inspect, splitPDF, pdfTools } from './engine'
+async function fixture(pages = 3, form = false) { const document = await PDFDocument.create(); for (let index = 0; index < pages; index++) document.addPage([300 + index * 10, 400]); document.setTitle('Original'); if (form) { const field = document.getForm().createTextField('name'); field.setText('Alpha'); field.addToPage(document.getPage(0), { x: 20, y: 20, width: 100, height: 20 }) }; return document.save() }
+describe('page range parsing', () => {
+  it('selects all pages by default', () => expect(pageRange('', 3)).toEqual([0, 1, 2]))
+  it('keeps requested ordering', () => expect(pageRange('3,1-2', 3)).toEqual([2, 0, 1]))
+  it('deduplicates ordinary selections', () => expect(pageRange('1,1-2', 3)).toEqual([0, 1]))
+  it('retains explicit duplicates when requested', () => expect(pageRange('1,1', 3, true)).toEqual([0, 0]))
+  it.each(['0', '4', '3-1', '1,', 'NaN', '-1', '1.5'])('rejects invalid range %s', input => expect(() => pageRange(input, 3)).toThrow())
+  it('caps page count', () => expect(() => pageRange('', 301)).toThrow())
+})
+describe('PDF operations', () => {
+  it('has unique tool IDs', () => expect(new Set(pdfTools.map(tool => tool.id)).size).toBe(pdfTools.length))
+  it('merges documents in input order', async () => { const bytes = await processPDF([await fixture(2), await fixture(1)], 'merge'); expect((await inspect(bytes)).pageSizes.map(page => page.width)).toEqual([300, 310, 300]) })
+  it('extracts selected pages in order', async () => expect((await inspect(await processPDF([await fixture()], 'extract', { pages: '3,1' }))).pageSizes.map(page => page.width)).toEqual([320, 300]))
+  it('reorders and repeats pages', async () => expect((await inspect(await processPDF([await fixture()], 'reorder', { pages: '3,1,1' }))).pageSizes.map(page => page.width)).toEqual([320, 300, 300]))
+  it('deletes selected pages', async () => expect((await inspect(await processPDF([await fixture()], 'delete', { pages: '2' }))).pages).toBe(2))
+  it('refuses to delete every page', async () => { await expect(processPDF([await fixture()], 'delete')).rejects.toThrow('every page') })
+  it('duplicates selected pages', async () => expect((await inspect(await processPDF([await fixture()], 'duplicate', { pages: '1,2' }))).pages).toBe(5))
+  it('rotates only selected pages', async () => expect((await inspect(await processPDF([await fixture()], 'rotate', { pages: '2', rotation: 90 }))).pageSizes.map(page => page.rotation)).toEqual([0, 90, 0]))
+  it('inserts blank pages at a chosen position', async () => expect((await inspect(await processPDF([await fixture()], 'blank', { insertAt: 2, width: 500, height: 500 }))).pageSizes.map(page => page.width)).toEqual([300, 500, 310, 320]))
+  it('resizes page dimensions', async () => expect((await inspect(await processPDF([await fixture()], 'resize', { width: 600, height: 800 }))).pageSizes[0]).toMatchObject({ width: 600, height: 800 }))
+  it('sets a crop view without changing the media box', async () => expect((await inspect(await processPDF([await fixture()], 'crop', { x: 0, y: 0, width: 200, height: 300 }))).pageSizes[0]).toMatchObject({ width: 300, cropBox: { x: 0, y: 0, width: 200, height: 300 } }))
+  it('updates metadata', async () => expect(await inspect(await processPDF([await fixture()], 'metadata', { title: 'New title', author: 'Test' }))).toMatchObject({ title: 'New title', author: 'Test' }))
+  it('clears standard metadata', async () => expect((await inspect(await processPDF([await fixture()], 'metadata-clear'))).title).toBe(''))
+  it('fills text fields', async () => expect((await inspect(await processPDF([await fixture(1, true)], 'fill', { formValues: '{"name":"Beta"}' }))).forms[0].value).toBe('Beta'))
+  it('flattens fields', async () => expect((await inspect(await processPDF([await fixture(1, true)], 'flatten'))).forms).toHaveLength(0))
+  it('rejects copying editable forms', async () => { await expect(processPDF([await fixture(1, true)], 'extract')).rejects.toThrow('Flatten') })
+  it('rejects invalid form values', async () => { await expect(processPDF([await fixture(1, true)], 'fill', { formValues: '{"name":true}' })).rejects.toThrow('Unsupported') })
+  it('splits individual valid PDFs', async () => { const files = await splitPDF(await fixture(), '1,3'); expect(files).toHaveLength(2); expect((await inspect(files[1].bytes)).pageSizes[0].width).toBe(320) })
+  it.each(['watermark', 'numbers', 'text', 'rectangle'])('creates a valid %s output', async operation => expect((await inspect(await processPDF([await fixture()], operation, { width: 50, height: 30 }))).pages).toBe(3))
+  it('adds an attachment', async () => { const bytes = await processPDF([await fixture()], 'attach', { attachmentName: 'note.txt' }, new TextEncoder().encode('Hello')); expect(bytes.length).toBeGreaterThan((await fixture()).length) })
+  it('rejects corrupt PDFs', async () => { await expect(processPDF([new Uint8Array([1, 2, 3])], 'rotate')).rejects.toThrow('Cannot open') })
+  it('rejects invalid rotation', async () => { await expect(processPDF([await fixture()], 'rotate', { rotation: 45 })).rejects.toThrow('multiple') })
+  it('rejects crop outside media bounds', async () => { await expect(processPDF([await fixture()], 'crop', { width: 9999 })).rejects.toThrow() })
+  it('rejects unknown operations', async () => { await expect(processPDF([await fixture()], 'missing')).rejects.toThrow('Unknown') })
+})
