@@ -13,7 +13,7 @@ npm run test:e2e
 npm run dev
 ```
 
-`check` runs unit tests, owned-source lint, TypeScript, and production build. Browser tests serve `dist/` on port 4173; keep it free. Chromium desktop/mobile viewports are tested, not Safari. Reports/traces/screenshots are ignored. React advisory warnings are not configured as failures; compiler/lint errors fail. Linux CI uses `npx playwright install --with-deps chromium` in a disposable runner. Build/export limits are documented in README.
+`check` runs unit tests, owned-source lint, TypeScript, and production build. Browser tests serve `dist/` on port 4173; keep it free. Chromium desktop/mobile viewports are tested, not Safari. Reports/traces/screenshots are ignored. React advisory warnings are not configured as failures; compiler/lint errors fail. GitHub Actions uses `ubuntu-24.04` and `npx playwright install chromium`; the hosted image provides browser system libraries without requiring apt mirror access. Jenkins retains `npx playwright install --with-deps chromium` in its disposable Docker agent. Build/export limits are documented in README.
 
 ## GitHub Pages
 

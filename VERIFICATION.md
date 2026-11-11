@@ -1,6 +1,6 @@
 # PDF Toolkit Verification
 
-Verified locally on Windows with Node.js 24 on 2026-11-01. This report applies only to this repository.
+Verified locally on Windows with Node.js 24 on 2026-11-11. This report applies only to this repository.
 
 | Check | Result |
 | --- | --- |
@@ -43,7 +43,7 @@ Reports are generated in ignored `playwright-report/` and `test-results/` direct
 
 One advisory React lint warning concerns the current render-task ref used during teardown. Large PDF parser/worker bundles also exceed Vite's advisory chunk-size threshold. These are not build failures or a claim of optimal load performance.
 
-GitHub Actions and Jenkins configuration are present, but were not executed on live GitHub/Jenkins infrastructure. Remote publication, reviewed initial commits, Pages settings, required PR checks, an isolated Jenkins Multibranch runner/webhook, and a distribution-license choice require owner setup. No paid/cloud API or GitHub credit-funded call was used.
+The [2026-11-11 main GitHub Actions run](https://github.com/dharaneishvc/pdf-toolkit/actions/runs/43051708740) passed install, audit, unit tests, lint, and build, then failed while `playwright install --with-deps` attempted to reach Ubuntu apt mirrors with DNS resolution errors. Browser tests and Pages deployment were skipped; the Pages URL returned 404. The workflow now pins `ubuntu-24.04` and installs Chromium without the apt dependency step, but that fix still requires a successful live rerun. Jenkins has not been executed. Pages settings, required PR checks, an isolated Jenkins Multibranch runner/webhook, and a distribution-license choice require owner setup. No paid/cloud API or GitHub credit-funded call was used.
 
 Safari/Firefox certification, hostile-file penetration testing, production-load testing, full PDF standards fidelity, signature validation, and secure redaction/sanitization were not verified. Crop boxes, overlays, and standard metadata clearing can leave recoverable content; rewrites may invalidate signatures. See the [README](README.md) for limitations, [Architecture](docs/ARCHITECTURE.md) for HLD/LLD/local BE/DB design, and [Operations](docs/OPERATIONS.md) for deployment.
 

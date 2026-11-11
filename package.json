@@ -1,7 +1,8 @@
 {
   "name": "pdf-toolkit",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "author": "Dharaneish V C",
   "type": "module",
   "scripts": {
     "dev": "vite",
