@@ -101,8 +101,8 @@ export default function App() {
   }
   async function sample() {
     const document = await PDFDocument.create(); const font = await document.embedFont(StandardFonts.Helvetica)
-    for (let index = 0; index < 3; index++) { const page = document.addPage([595, 842]); page.drawRectangle({ x: 0, y: 720, width: 595, height: 122, color: rgb(.05, .48, .53) }); page.drawText('LOCAL / DOCUMENT STUDIO', { x: 40, y: 784, font, size: 20, color: rgb(1, 1, 1) }); page.drawText(['Project brief', 'Design notes', 'Release checklist'][index], { x: 40, y: 660, font, size: 28 }); page.drawText(`Sample page ${index + 1}\n\nThis document was generated on your device.\n\nA browser-native toolkit for everyday document work.`, { x: 40, y: 590, font, size: 14, lineHeight: 26 }); page.drawText(String(index + 1), { x: 290, y: 35, font, size: 12 }) }
-    document.setTitle('Local Tools sample'); await add([new File([new Uint8Array(await document.save()).buffer], 'sample.pdf', { type: 'application/pdf' })], false)
+    for (let index = 0; index < 3; index++) { const page = document.addPage([595, 842]); page.drawRectangle({ x: 0, y: 720, width: 595, height: 122, color: rgb(.05, .48, .53) }); page.drawText('PDF TOOLKIT', { x: 40, y: 784, font, size: 20, color: rgb(1, 1, 1) }); page.drawText(['Project brief', 'Design notes', 'Release checklist'][index], { x: 40, y: 660, font, size: 28 }); page.drawText(`Sample page ${index + 1}\n\nThis document was generated on your device.\n\nA browser-native toolkit for everyday document work.`, { x: 40, y: 590, font, size: 14, lineHeight: 26 }); page.drawText(String(index + 1), { x: 290, y: 35, font, size: 12 }) }
+    document.setTitle('PDF Toolkit sample'); document.setAuthor('Dharaneish V C'); await add([new File([new Uint8Array(await document.save()).buffer], 'sample.pdf', { type: 'application/pdf' })], false)
   }
   function remove(asset: Asset) { closePDF(asset.document); owned.current = owned.current.filter(item => item.id !== asset.id); setAssets(previous => previous.filter(item => item.id !== asset.id)); setOutput(null); update({ pages: '' }) }
   async function reuseResult() {
@@ -193,7 +193,7 @@ export default function App() {
   const positioned = ['crop', 'text', 'rectangle', 'image']
   const textTools = ['watermark', 'numbers', 'text']
   let selectedPages: number[] = []; if (selected?.document && options.pages.trim()) { try { selectedPages = pageRange(options.pages, selected.document.numPages) } catch { selectedPages = [] } }
-  return <Shell title="PDF toolkit" subtitle="PDF" tools={pdfTools} active={active} onSelect={selectTool}><div className="workbench">
+  return <Shell title="PDF Toolkit" subtitle="PDF" tools={pdfTools} active={active} onSelect={selectTool}><div className="workbench">
     <input ref={fileInput} type="file" hidden multiple accept={active === 'images-pdf' ? 'image/png,image/jpeg' : 'application/pdf'} onChange={event => { void add(Array.from(event.target.files ?? [])); event.target.value = '' }} />
     <div className="section-toolbar pdf-toolbar"><div className="actions"><button className="secondary-button" disabled={busy} onClick={() => fileInput.current?.click()}><FilePlus2 size={16} />{active === 'images-pdf' ? 'Add images' : 'Add PDFs'}</button><IconButton label="Load sample PDF" disabled={busy} onClick={() => { sample().catch(() => setError('Could not generate sample PDF.')) }}><FlaskConical size={18} /></IconButton></div><span className="document-count">{assets.length} files</span></div>
     <div className="workspace-grid"><section>
